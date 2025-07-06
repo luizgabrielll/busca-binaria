@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Jogo da Busca Binária</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      padding: 30px;
+      background-color: #f0f4f8;
+    }
+    input, button {
+      padding: 8px;
+      font-size: 16px;
+      margin: 10px;
+    }
+    .barra {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+    .item {
+      border: 2px solid #ccc;
+      padding: 10px;
+      margin: 4px;
+      width: 50px;
+      position: relative;
+    }
+    .baixo::before {
+      content: '↓ baixo';
+      position: absolute;
+      top: -25px;
+      font-size: 12px;
+      color: #007bff;
+    }
+    .meio::before {
+      content: '↓ meio';
+      position: absolute;
+      top: -25px;
+      font-size: 12px;
+      color: #28a745;
+    }
+    .alto::before {
+      content: '↓ alto';
+      position: absolute;
+      top: -25px;
+      font-size: 12px;
+      color: #dc3545;
+    }
+    #mensagem {
+      font-size: 18px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎲 Jogo da Busca Binária</h1>
+
+  <p id="lista-gerada"></p>
+  <input type="number" id="entrada" placeholder="Digite o número a buscar">
+  <button onclick="buscar()">Buscar</button>
+
+  <div class="barra" id="barra"></div>
+  <div id="mensagem"></div>
+
+  <script>
+    const lista = Array.from({ length: 15 }, () => Math.floor(Math.random() * 99) + 1)
+                       .filter((v, i, a) => a.indexOf(v) === i)
+                       .sort((a, b) => a - b);
+    document.getElementById("lista-gerada").innerText = "Lista gerada: " + lista.join(", ");
+
+    function mostrarBarra(baixo, meio, alto) {
+      const barraDiv = document.getElementById("barra");
+      barraDiv.innerHTML = '';
+      lista.forEach((num, i) => {
+        const itemDiv = document.createElement("div");
+        itemDiv.className = "item";
+        if (i === baixo) itemDiv.classList.add("baixo");
+        if (i === meio) itemDiv.classList.add("meio");
+        if (i === alto) itemDiv.classList.add("alto");
+        itemDiv.textContent = num;
+        barraDiv.appendChild(itemDiv);
+      });
+    }
+
+    function buscar() {
+      const entrada = parseInt(document.getElementById("entrada").value);
+      const msg = document.getElementById("mensagem");
+      let baixo = 0, alto = lista.length - 1, passos = 0;
+
+      msg.innerText = '';
+      const intervalo = setInterval(() => {
+        if (baixo > alto) {
+          clearInterval(intervalo);
+          msg.innerHTML = `❌ O número ${entrada} não está na lista.<br>🔁 Passos: ${passos}`;
+          return;
+        }
+
+        const meio = Math.floor((baixo + alto) / 2);
+        passos++;
+        mostrarBarra(baixo, meio, alto);
+
+        if (lista[meio] === entrada) {
+          clearInterval(intervalo);
+          msg.innerHTML = `🎉 Número ${entrada} encontrado no índice ${meio}!<br>✅ Passos: ${passos}`;
+        } else if (lista[meio] > entrada) {
+          alto = meio - 1;
+        } else {
+          baixo = meio + 1;
+        }
+      }, 1000); // espera 1 segundo entre os passos
+    }
+  </script>
+</body>
+</html>
